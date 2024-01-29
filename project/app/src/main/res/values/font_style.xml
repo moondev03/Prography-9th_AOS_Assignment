@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Bold_20">
+        <item name="fontFamily">@font/pretendard_bold</item>
+        <item name="android:textSize">@dimen/text_20</item>
+        <item name="android:letterSpacing">-0.3</item>
+    </style>
+
+    <style name="Medium_15">
+        <item name="fontFamily">@font/pretendard_medium</item>
+        <item name="android:textSize">@dimen/text_15</item>
+        <item name="android:letterSpacing">-0.3</item>
+    </style>
+
+    <style name="Medium_13">
+        <item name="fontFamily">@font/pretendard_medium</item>
+        <item name="android:textSize">@dimen/text_13</item>
+        <item name="android:letterSpacing">-0.3</item>
+    </style>
+</resources>
