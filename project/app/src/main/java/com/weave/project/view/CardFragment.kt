@@ -1,6 +1,7 @@
 package com.weave.project.view
 
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.weave.project.R
 import com.weave.project.data.local.BookMarkDatabase
@@ -44,6 +45,8 @@ class CardFragment: BaseFragment<FragmentCardBinding>(R.layout.fragment_card) {
                         CoroutineScope(Dispatchers.IO).launch {
                             db!!.bookMarkDao().saveBookMark(viewModel.photoItems.value!![manager.topPosition-1].asBookMark())
                         }
+
+                        Toast.makeText(requireContext(), "BookMark!", Toast.LENGTH_SHORT).show()
                     }
 
                     viewModel.getRandomPhoto(1)
@@ -59,7 +62,7 @@ class CardFragment: BaseFragment<FragmentCardBinding>(R.layout.fragment_card) {
             })
         manager.setStackFrom(StackFrom.TopAndRight)
 
-        cardStackAdapter = CardStackAdapter(viewModel.photoItems.value!!).apply {
+        cardStackAdapter = CardStackAdapter(requireActivity(), viewModel.photoItems.value!!).apply {
             this.setItemClickListener(object: CardStackAdapter.OnItemClickListener{
                 override fun onClick(v: View, pos: Int, data: PhotoEntity) {
 

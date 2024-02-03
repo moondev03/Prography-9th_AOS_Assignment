@@ -3,6 +3,7 @@ package com.weave.project.repository
 import com.weave.project.data.remote.RetrofitClient
 import com.weave.project.data.remote.api.UnSplashService
 import com.weave.project.data.remote.Result
+import com.weave.project.model.PhotoDetailEntity
 import com.weave.project.model.PhotoEntity
 import com.weave.project.util.asEntity
 
@@ -39,6 +40,25 @@ class UnSplashRepositoryImpl: UnSplashRepository {
                 if(data != null){
                     val photoEntities = data.map { it.asEntity() }
                     Result.Success(photoEntities)
+                } else {
+                    Result.Error(res.code(), "Received null data")
+                }
+            } else {
+                Result.Error(res.code(), res.message())
+            }
+        } catch (e: Exception){
+            Result.Error(0, e.message ?: "An error occurred")
+        }
+    }
+
+    override suspend fun getPhotoInfo(id: String): Result<PhotoDetailEntity> {
+        return try {
+            val res = service.getPhotoInfo(id)
+
+            if(res.isSuccessful){
+                val data = res.body()
+                if(data != null){
+                    Result.Success(data.asEntity())
                 } else {
                     Result.Error(res.code(), "Received null data")
                 }

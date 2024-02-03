@@ -11,8 +11,8 @@ interface BookMarkDAO {
     @Query("SELECT * FROM table_bookmark")
     fun getAll(): List<BookMarkEntity>
 
-    @Query("SELECT * FROM table_bookmark WHERE id = :id")
-    fun getBookMark(id: String): BookMarkEntity
+    @Query("SELECT COUNT(*) FROM table_bookmark WHERE id = :id")
+    fun getBookMark(id: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveBookMark(bookMarkEntity: BookMarkEntity)

@@ -2,6 +2,7 @@ package com.weave.project.view
 
 import android.graphics.Rect
 import android.os.Parcelable
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +25,7 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
     private var rvState: Parcelable? = null
     private lateinit var photoAdapter: HouseRvAdapter
     private var db: BookMarkDatabase? = null
+    private var bookMarkList: MutableList<BookMarkEntity> = mutableListOf()
 
     override fun init() {
         viewModel = ViewModelProvider(this)[HouseViewModel::class.java]
@@ -34,14 +36,37 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
         viewModel.getPhotos()
         setBookMark()
         setRecent()
+
+        viewModel.removeRefresh.observe(this){ id ->
+            if(id.isNotEmpty()){
+                val userToRemove = bookMarkList.find { it.id == id }
+                bookMarkList.remove(userToRemove)
+                bookMarkAdapter.changeList(bookMarkList)
+                viewModel.setRemoveRefresh("")
+            }
+            Log.i(TAG, id.toString())
+        }
+
+        viewModel.addRefresh.observe(this){
+            if(it.id.isNotEmpty()){
+                bookMarkList.add(it)
+                bookMarkAdapter.changeList(bookMarkList)
+                viewModel.setAddRefresh(BookMarkEntity("", ""))
+            }
+            Log.i(TAG, id.toString())
+        }
+    }
+
+    private fun loadBookMark(){
+        runBlocking(Dispatchers.IO){
+            bookMarkList.addAll(db!!.bookMarkDao().getAll())
+        }
     }
 
     private fun setBookMark(){
-        var bookMarkList: List<BookMarkEntity>
+        loadBookMark()
 
-        runBlocking(Dispatchers.IO){
-            bookMarkList = db!!.bookMarkDao().getAll()
-        }
+        Log.i(TAG, "setBook")
 
         if (bookMarkList.isEmpty()) {
             binding.tvBookmark.visibility = View.GONE
@@ -55,7 +80,13 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
                 temp.add(list.next())
             }
 
-            bookMarkAdapter = HouseBookMarkRvAdapter(temp)
+            bookMarkAdapter = HouseBookMarkRvAdapter(temp).apply {
+                this.setItemClickListener(object: HouseBookMarkRvAdapter.OnItemClickListener{
+                    override fun onClick(id: String) {
+                        DetailDialog.getInstance(id, viewModel).show(requireActivity().supportFragmentManager, "")
+                    }
+                })
+            }
             binding.rvBookmark.adapter = bookMarkAdapter
         }
     }
@@ -65,7 +96,13 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
 
         binding.rvRecent.layoutManager = layoutManager
         binding.rvRecent.addItemDecoration(VerticalSpaceItemDecoration())
-        photoAdapter = HouseRvAdapter()
+        photoAdapter = HouseRvAdapter().apply {
+            this.setItemClickListener(object: HouseRvAdapter.OnItemClickListener{
+                override fun onClick(id: String) {
+                    DetailDialog.getInstance(id, viewModel).show(requireActivity().supportFragmentManager, "")
+                }
+            })
+        }
         binding.rvRecent.adapter = photoAdapter
 
         binding.rvRecent.addOnScrollListener(object : RecyclerView.OnScrollListener() {

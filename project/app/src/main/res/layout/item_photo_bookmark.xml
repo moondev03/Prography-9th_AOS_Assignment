@@ -10,6 +10,7 @@
         android:id="@+id/iv_item"
         android:layout_width="wrap_content"
         android:layout_height="128dp"
-        android:layout_marginVertical="12dp"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        android:src="@drawable/loading_photo_item"
+        android:adjustViewBounds="true"/>
 </layout>

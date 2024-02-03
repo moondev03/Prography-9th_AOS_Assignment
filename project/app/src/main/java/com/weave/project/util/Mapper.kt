@@ -4,6 +4,7 @@ import com.weave.project.data.remote.dto.GetPhotoDetailRes
 import com.weave.project.data.remote.dto.GetPhotosRes
 import com.weave.project.data.remote.dto.GetRandomPhotosRes
 import com.weave.project.model.BookMarkEntity
+import com.weave.project.model.PhotoDetailEntity
 import com.weave.project.model.PhotoEntity
 
 fun GetPhotosRes.asEntity() = PhotoEntity(
@@ -24,9 +25,16 @@ fun GetRandomPhotosRes.asEntity() = PhotoEntity(
     user = null
 )
 
-fun GetPhotoDetailRes.asEntity() = BookMarkEntity(
+fun GetPhotoDetailRes.asEntity() = PhotoDetailEntity(
     id = this.id,
-    url = this.urls.regular
+    width = this.width,
+    height = this.height,
+    username = this.user.username,
+    url = this.urls.regular,
+    download = this.links.download,
+    title = "",
+    desc = this.description,
+    tags = this.tags
 )
 
 fun PhotoEntity.asBookMark() = BookMarkEntity(
