@@ -33,6 +33,8 @@ class DetailDialogViewModel: ViewModel() {
                     launch(Dispatchers.Main){
                         _photoData.value = res.data
                         _url.value = res.data.url
+                        _title.value = res.data.title ?: "No Title"
+                        _desc.value = res.data.desc ?: "No Description"
                         setTags(res.data.tags)
                     }
                     Log.i("load", "load")
@@ -70,4 +72,12 @@ class DetailDialogViewModel: ViewModel() {
             _tags.value = result.toString()
         }
     }
+
+    private val _title = MutableLiveData<String>("")
+    val title: LiveData<String>
+        get() = _title
+
+    private val _desc = MutableLiveData<String>("")
+    val desc: LiveData<String>
+        get() = _desc
 }

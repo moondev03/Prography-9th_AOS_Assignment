@@ -5,6 +5,7 @@ import com.weave.project.data.remote.dto.User
 
 data class PhotoEntity(
     val id: String,
+    val title: String?,
     val description: String?,
     val urls: Urls,
     val width: Int,

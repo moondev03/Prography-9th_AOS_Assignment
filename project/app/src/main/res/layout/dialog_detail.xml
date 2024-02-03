@@ -92,7 +92,7 @@
                 android:id="@+id/tv_detail_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{vm.photoData.title}"
+                android:text="@{vm.title}"
                 style="@style/Bold_20"
                 android:textColor="@color/white"
                 android:layout_marginBottom="4dp"/>
@@ -101,7 +101,7 @@
                 android:id="@+id/tv_detail_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{vm.photoData.desc}"
+                android:text="@{vm.desc}"
                 android:maxLines="2"
                 android:ellipsize="end"
                 style="@style/Medium_15"

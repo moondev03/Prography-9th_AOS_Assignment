@@ -2,8 +2,9 @@ package com.weave.project.view
 
 import android.graphics.Rect
 import android.os.Parcelable
-import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,14 +23,27 @@ import kotlinx.coroutines.runBlocking
 class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house) {
     private lateinit var viewModel: HouseViewModel
     private lateinit var bookMarkAdapter: HouseBookMarkRvAdapter
-    private var rvState: Parcelable? = null
     private lateinit var photoAdapter: HouseRvAdapter
+    private var rvState: Parcelable? = null
     private var db: BookMarkDatabase? = null
     private var bookMarkList: MutableList<BookMarkEntity> = mutableListOf()
+    private var backPressedTime: Long = 0L
+
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (System.currentTimeMillis() - backPressedTime <= 2000) {
+                requireActivity().finishAffinity()
+            } else {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(requireContext(), "한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun init() {
         viewModel = ViewModelProvider(this)[HouseViewModel::class.java]
         binding.lifecycleOwner = viewLifecycleOwner
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
         db = BookMarkDatabase.getInstance(requireContext())
 
@@ -43,8 +57,9 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
                 bookMarkList.remove(userToRemove)
                 bookMarkAdapter.changeList(bookMarkList)
                 viewModel.setRemoveRefresh("")
+
+                checkEmpty()
             }
-            Log.i(TAG, id.toString())
         }
 
         viewModel.addRefresh.observe(this){
@@ -52,43 +67,45 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
                 bookMarkList.add(it)
                 bookMarkAdapter.changeList(bookMarkList)
                 viewModel.setAddRefresh(BookMarkEntity("", ""))
+
+                checkEmpty()
             }
-            Log.i(TAG, id.toString())
         }
     }
 
-    private fun loadBookMark(){
-        runBlocking(Dispatchers.IO){
-            bookMarkList.addAll(db!!.bookMarkDao().getAll())
-        }
-    }
-
-    private fun setBookMark(){
-        loadBookMark()
-
-        Log.i(TAG, "setBook")
-
+    private fun checkEmpty(){
         if (bookMarkList.isEmpty()) {
             binding.tvBookmark.visibility = View.GONE
             binding.rvBookmark.visibility = View.GONE
         } else {
-            binding.rvBookmark.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
-            binding.rvBookmark.addItemDecoration(HorizontalSpaceItemDecoration())
-            val temp = arrayListOf<BookMarkEntity>()
-            val list = bookMarkList.listIterator()
-            while (list.hasNext()){
-                temp.add(list.next())
-            }
-
-            bookMarkAdapter = HouseBookMarkRvAdapter(temp).apply {
-                this.setItemClickListener(object: HouseBookMarkRvAdapter.OnItemClickListener{
-                    override fun onClick(id: String) {
-                        DetailDialog.getInstance(id, viewModel).show(requireActivity().supportFragmentManager, "")
-                    }
-                })
-            }
-            binding.rvBookmark.adapter = bookMarkAdapter
+            binding.tvBookmark.visibility = View.VISIBLE
+            binding.rvBookmark.visibility = View.VISIBLE
         }
+    }
+
+    private fun setBookMark(){
+        runBlocking(Dispatchers.IO){
+            bookMarkList.addAll(db!!.bookMarkDao().getAll())
+        }
+
+        checkEmpty()
+
+        binding.rvBookmark.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        binding.rvBookmark.addItemDecoration(HorizontalSpaceItemDecoration())
+        val temp = arrayListOf<BookMarkEntity>()
+        val list = bookMarkList.listIterator()
+        while (list.hasNext()){
+            temp.add(list.next())
+        }
+
+        bookMarkAdapter = HouseBookMarkRvAdapter(temp).apply {
+            this.setItemClickListener(object: HouseBookMarkRvAdapter.OnItemClickListener{
+                override fun onClick(id: String) {
+                    DetailDialog.getInstance(id, viewModel).show(requireActivity().supportFragmentManager, "")
+                }
+            })
+        }
+        binding.rvBookmark.adapter = bookMarkAdapter
     }
 
     private fun setRecent(){

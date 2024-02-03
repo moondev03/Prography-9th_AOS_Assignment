@@ -2,6 +2,7 @@ package com.weave.project.view
 
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import com.weave.project.R
 import com.weave.project.data.local.BookMarkDatabase
@@ -24,11 +25,26 @@ class CardFragment: BaseFragment<FragmentCardBinding>(R.layout.fragment_card) {
     private lateinit var manager: CardStackLayoutManager
     private val viewModel by viewModels<CardViewModel>()
     private var db: BookMarkDatabase? = null
+    private var backPressedTime: Long = 0L
+
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (System.currentTimeMillis() - backPressedTime <= 2000) {
+                requireActivity().finishAffinity()
+            } else {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(requireContext(), "한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun init() {
         viewModel.getRandomPhoto(3)
-        setAdapter()
         db = BookMarkDatabase.getInstance(requireContext())
+        binding.lifecycleOwner = viewLifecycleOwner
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+
+        setAdapter()
 
         viewModel.photoItems.observe(this){
             cardStackAdapter.changeList(viewModel.photoItems.value!!)

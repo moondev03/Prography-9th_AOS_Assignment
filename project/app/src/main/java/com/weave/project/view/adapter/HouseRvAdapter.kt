@@ -42,7 +42,7 @@ class HouseRvAdapter(): RecyclerView.Adapter<HouseRvAdapter.RecyclerViewViewHold
                 .transform(CenterInside(), RoundedCorners(40))
                 .into(binding.ivItem)
 
-            binding.tvItem.text = item.description
+            binding.tvItem.text = item.title ?: "No Title"
 
             itemView.setOnClickListener {
                 itemClickListener.onClick(item.id)

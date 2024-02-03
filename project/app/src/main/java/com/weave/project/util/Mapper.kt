@@ -10,6 +10,7 @@ import com.weave.project.model.PhotoEntity
 fun GetPhotosRes.asEntity() = PhotoEntity(
     id = this.id,
     description = this.description,
+    title = null,
     urls = this.urls,
     width = this.width,
     height = this.height,
@@ -19,6 +20,7 @@ fun GetPhotosRes.asEntity() = PhotoEntity(
 fun GetRandomPhotosRes.asEntity() = PhotoEntity(
     id = this.id,
     description = this.description,
+    title = null,
     urls = this.urls,
     width = this.width,
     height = this.height,
@@ -32,7 +34,7 @@ fun GetPhotoDetailRes.asEntity() = PhotoDetailEntity(
     username = this.user.username,
     url = this.urls.regular,
     download = this.links.download,
-    title = "",
+    title = null,
     desc = this.description,
     tags = this.tags
 )

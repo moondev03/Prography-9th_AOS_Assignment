@@ -1,8 +1,17 @@
 package com.weave.project.view
 
+import android.Manifest
+import android.app.DownloadManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +19,9 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -62,14 +74,20 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
         binding.vm = viewModel
         setIsBookMark()
 
-//        vm.setSaveBtn(false)
-
         binding.ibCancel.setOnClickListener {
             dismiss()
         }
 
         binding.ibBookmark.setOnClickListener {
             clickBookMark()
+        }
+
+        binding.ibDownload.setOnClickListener {
+            if(checkStoragePermission()){
+                useDownloadManager()
+            } else {
+                requestStoragePermission()
+            }
         }
 
         viewModel.url.observe(this){
@@ -128,6 +146,57 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
             viewModel.setBookMark(result)
         }
 
+    }
+
+    private fun checkStoragePermission(): Boolean{
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    private fun requestStoragePermission() {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+        if (shouldShowRequestPermissionRationale(permission[0])) {
+            showPermissionRationale()
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), permission, 100)
+        }
+    }
+    private fun showPermissionRationale() {
+        val alertDialog = AlertDialog.Builder(requireContext())
+        alertDialog.setMessage("설정에서 수동으로 변경 필요")
+        alertDialog.setPositiveButton("확인") { _, _ ->
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", requireActivity().packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+        alertDialog.setNegativeButton("취소") { _, _ ->
+            dismiss()
+        }
+        alertDialog.show()
+    }
+
+    private fun useDownloadManager(){
+        val currentTimeMillis = System.currentTimeMillis()
+        val fileName = currentTimeMillis.toString()
+
+        val request = DownloadManager.Request(Uri.parse(viewModel.url.value))
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, fileName)
+
+        val downloadManager = requireActivity().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        downloadManager.enqueue(request)
+
+        Toast.makeText(requireContext(), "다운로드 완료", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {
