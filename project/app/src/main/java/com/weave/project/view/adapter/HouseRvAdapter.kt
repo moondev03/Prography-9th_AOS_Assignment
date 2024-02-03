@@ -42,6 +42,7 @@ class HouseRvAdapter(): RecyclerView.Adapter<HouseRvAdapter.RecyclerViewViewHold
                 .transform(CenterInside(), RoundedCorners(40))
                 .into(binding.ivItem)
 
+            // UnSplash API Response 중 Title 값이 찾을 수 없음..
             binding.tvItem.text = item.title ?: "No Title"
 
             itemView.setOnClickListener {

@@ -51,6 +51,7 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
         setBookMark()
         setRecent()
 
+        // 북마크 제거 시 업데이트를 위함
         viewModel.removeRefresh.observe(this){ id ->
             if(id.isNotEmpty()){
                 val userToRemove = bookMarkList.find { it.id == id }
@@ -62,6 +63,7 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
             }
         }
 
+        // 북마크 추가 시 업데이트를 위함
         viewModel.addRefresh.observe(this){
             if(it.id.isNotEmpty()){
                 bookMarkList.add(it)
@@ -73,6 +75,7 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
         }
     }
 
+    // 북마크 세션 visibility
     private fun checkEmpty(){
         if (bookMarkList.isEmpty()) {
             binding.tvBookmark.visibility = View.GONE
@@ -83,6 +86,8 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
         }
     }
 
+
+    // 북마크 세션에 대한 세팅
     private fun setBookMark(){
         runBlocking(Dispatchers.IO){
             bookMarkList.addAll(db!!.bookMarkDao().getAll())
@@ -108,6 +113,10 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
         binding.rvBookmark.adapter = bookMarkAdapter
     }
 
+
+    // 최근 이미지에 대한 세팅
+    // StaggeredGridLayoutManager를 사용함
+    // 최하단 아이템으로 부터 visibleThreshold값 떨어진 아이템이 로드되면 새로운 getPhotos() 호출
     private fun setRecent(){
         val layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
 
@@ -123,8 +132,8 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
         binding.rvRecent.adapter = photoAdapter
 
         binding.rvRecent.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            private var loading = true
-            private var previousTotal = 0
+            private var loading = true // 중복 요청 방지
+            private var previousTotal = 0 // 이전 총 아이템 수
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -132,16 +141,16 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
                 val lm = recyclerView.layoutManager as? StaggeredGridLayoutManager ?: return
 
                 if(dy > 0){
-                    val visibleItemCount = lm.childCount
-                    val totalItemCount = lm.itemCount
-                    val firstVisibleItem = lm.findFirstVisibleItemPositions(IntArray(2))[0]
+                    val visibleItemCount = lm.childCount // 현재 보이는 아이템 수
+                    val totalItemCount = lm.itemCount // 총 아이템 수
+                    val firstVisibleItem = lm.findFirstVisibleItemPositions(IntArray(2))[0] // 첫번째로 보이는 아이템 위치
 
                     if (loading && totalItemCount > previousTotal) {
                         loading = false
                         previousTotal = totalItemCount
                     }
 
-                    val visibleThreshold = 10
+                    val visibleThreshold = 3 // 남은 아이템 수 (해당 값 만큼 남으면 로드)
 
                     if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                         viewModel.getPhotos()
@@ -152,6 +161,7 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
             }
         })
 
+        // photoItems가 변경됨을 감지하고 DiffUtil를 통해 RecyclerView 아이템 변경
         viewModel.photoItems.observe(viewLifecycleOwner) { photoList ->
             rvState = binding.rvRecent.layoutManager?.onSaveInstanceState()!!
             photoAdapter.changeList(photoList)

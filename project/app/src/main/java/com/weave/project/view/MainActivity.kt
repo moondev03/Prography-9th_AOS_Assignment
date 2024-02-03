@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
 
         binding.bottomNavi.labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_UNLABELED
+
         replaceFragment(HouseFragment())
         binding.bottomNavi.setOnItemSelectedListener {
             when(it.itemId){

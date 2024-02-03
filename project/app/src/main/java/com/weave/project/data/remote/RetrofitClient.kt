@@ -13,6 +13,8 @@ object RetrofitClient {
     private var instance: Retrofit? = null
     private val gson = GsonBuilder().setLenient().create()
 
+
+    // 디버깅 편의성을 위해 loggingInterceptor 추가
     private val loggingInterceptor = if(BuildConfig.DEBUG){
         HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
     }else {

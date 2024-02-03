@@ -39,18 +39,24 @@ class CardFragment: BaseFragment<FragmentCardBinding>(R.layout.fragment_card) {
     }
 
     override fun init() {
+        // 처음에만 3개 로드하고 스와이프 시마다 하나식 추가해 총 3개 유지되도록 함
         viewModel.getRandomPhoto(3)
+
         db = BookMarkDatabase.getInstance(requireContext())
         binding.lifecycleOwner = viewLifecycleOwner
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
         setAdapter()
 
+        // PhotoItems의 변화를 감지하고 DiffUtil를 통해 아이템 추가하도록 함
         viewModel.photoItems.observe(this){
             cardStackAdapter.changeList(viewModel.photoItems.value!!)
         }
     }
 
+    // CardStackView 라이브러리를 사용해 구현함
+    // 좌로 스와이프 -> 다음 아이템
+    // 우로 스와이프 -> 북마크 저장 후 다음 아이템
     private fun setAdapter(){
         manager = CardStackLayoutManager(requireActivity().baseContext,
             object : CardStackListener {
@@ -62,9 +68,10 @@ class CardFragment: BaseFragment<FragmentCardBinding>(R.layout.fragment_card) {
                             db!!.bookMarkDao().saveBookMark(viewModel.photoItems.value!![manager.topPosition-1].asBookMark())
                         }
 
-                        Toast.makeText(requireContext(), "BookMark!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "북마크 추가!", Toast.LENGTH_SHORT).show()
                     }
 
+                    // 스와이프 마다 새로운 아이템을 추가 총 3개가 유지되도록 함
                     viewModel.getRandomPhoto(1)
                 }
 
@@ -76,8 +83,12 @@ class CardFragment: BaseFragment<FragmentCardBinding>(R.layout.fragment_card) {
 
                 override fun onCardDisappeared(view: View?, position: Int) {}
             })
+
+        // 스택 쌓이는 형태 지정
         manager.setStackFrom(StackFrom.TopAndRight)
 
+        // RecyclerView Adapter에 ItemClickListener 추가해서 Room DB에 사진 Id와 Url를 저장
+        // 이후 자동 스와이프 진행
         cardStackAdapter = CardStackAdapter(requireActivity(), viewModel.photoItems.value!!).apply {
             this.setItemClickListener(object: CardStackAdapter.OnItemClickListener{
                 override fun onClick(v: View, pos: Int, data: PhotoEntity) {

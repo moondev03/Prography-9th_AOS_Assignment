@@ -26,6 +26,8 @@ class DetailDialogViewModel: ViewModel() {
     val url: LiveData<String>
         get() = _url
 
+    // 사진의 상세 정보를 호출하고각
+    // 결과를 databinding을 사용해 view에 값이 보이도록 함
     fun setPhotoData(id: String){
         viewModelScope.launch(Dispatchers.IO){
             when (val res = repository.getPhotoInfo(id)) {
@@ -37,12 +39,12 @@ class DetailDialogViewModel: ViewModel() {
                         _desc.value = res.data.desc ?: "No Description"
                         setTags(res.data.tags)
                     }
-                    Log.i("load", "load")
                 }
                 is Result.Error -> {
-                    Log.e("load", res.message.toString())
+                    Log.e("getPhotoInfo", res.message.toString())
                 }
                 is Result.Exception -> {
+                    Log.e("getPhotoInfo", res.e.message.toString())
                 }
             }
         }
@@ -60,6 +62,7 @@ class DetailDialogViewModel: ViewModel() {
     val tags: LiveData<String>
         get() = _tags
 
+    // 태그는 리스트 타입이기 때문에 하나의 문자열로 붙여 저장
     private fun setTags(tags: List<Tags>){
         if(tags.isNotEmpty()){
             val temp = tags.listIterator()

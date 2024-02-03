@@ -18,6 +18,7 @@ class CardViewModel : ViewModel() {
         get() = _photoItems
 
 
+    // 랜덤 이미지를 size만큼 로드
     fun getRandomPhoto(size: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             when (val res = repository.getRandomPhotos(size)) {
@@ -28,8 +29,10 @@ class CardViewModel : ViewModel() {
                     Log.e("VM", photoItems.value?.size.toString())
                 }
                 is Result.Error -> {
+                    Log.e("getRandomPhotos", res.message.toString())
                 }
                 is Result.Exception -> {
+                    Log.e("getRandomPhotos", res.e.message.toString())
                 }
             }
         }

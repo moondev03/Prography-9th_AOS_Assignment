@@ -102,6 +102,7 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
         return binding.root
     }
 
+    // 처음 로드 시 Id를 비교해 북마크 여부를 표시
     private fun setIsBookMark(){
         db = BookMarkDatabase.getInstance(requireContext())
 
@@ -118,6 +119,9 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
         }
     }
 
+
+    // 북마크 아이콘 클릭 시 북마크 여부를 검사
+    // DB에 해당 아이템이 없을 시 추가, 있다면 제거
     private fun clickBookMark(){
         CoroutineScope(Dispatchers.Main).launch {
             val temp: Deferred<Boolean> = async(Dispatchers.IO){
@@ -148,6 +152,7 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
 
     }
 
+    // 사진 다운로드를 위한 권한 여부 체크
     private fun checkStoragePermission(): Boolean{
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
@@ -157,6 +162,8 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
         }
     }
 
+    // 최초 또는 재요청 기능을 하는 함수
+    // 권한을 거부한 기록이 있다면 다이얼로그를 띄워 설정에서 수동 변경 유도
     private fun requestStoragePermission() {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
@@ -170,6 +177,9 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
             ActivityCompat.requestPermissions(requireActivity(), permission, 100)
         }
     }
+
+    // 최초 요청 시 뜨는 권한 요청 창은 재요청 시 띄워지지 않기 때문에
+    // 설정으로 유도시켜 권한 수정 요청
     private fun showPermissionRationale() {
         val alertDialog = AlertDialog.Builder(requireContext())
         alertDialog.setMessage("설정에서 수동으로 변경 필요")
@@ -185,6 +195,7 @@ class DetailDialog(private val id: String, private val vm: HouseViewModel?) : Di
         alertDialog.show()
     }
 
+    // DownloadManager를 사용해 이미지 다운로드
     private fun useDownloadManager(){
         val currentTimeMillis = System.currentTimeMillis()
         val fileName = currentTimeMillis.toString()

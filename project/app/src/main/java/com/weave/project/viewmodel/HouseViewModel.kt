@@ -1,5 +1,6 @@
 package com.weave.project.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -38,6 +39,7 @@ class HouseViewModel : ViewModel() {
     private var page = 1
 
 
+    // 호출 시 마다 page를 증가시키며 10개씩 새로운 데이터가 추가될 수 있도록 함
     fun getPhotos() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val res = repository.getPhotos(page, 10)) {
@@ -47,8 +49,10 @@ class HouseViewModel : ViewModel() {
                     page++
                 }
                 is Result.Error -> {
+                    Log.e("getPhotos", res.message.toString())
                 }
                 is Result.Exception -> {
+                    Log.e("getPhotos", res.e.message.toString())
                 }
             }
         }
