@@ -1,10 +1,12 @@
 package com.weave.project.view
 
 import android.graphics.Rect
+import android.os.Parcelable
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.weave.project.R
 import com.weave.project.databinding.FragmentHouseBinding
 import com.weave.project.model.PhotoEntity
@@ -16,8 +18,8 @@ import com.weave.project.viewmodel.HouseViewModel
 class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house) {
     private lateinit var viewModel: HouseViewModel
     private lateinit var bookMarkAdapter: HouseBookMarkRvAdapter
-    private lateinit var photoAdapter1: HouseRvAdapter
-    private lateinit var photoAdapter2: HouseRvAdapter
+    private var rvState: Parcelable? = null
+    private lateinit var photoAdapter: HouseRvAdapter
 
     override fun init() {
         viewModel = ViewModelProvider(this)[HouseViewModel::class.java]
@@ -43,27 +45,12 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
             }
         }
 
-        viewModel.photoItems.observe(viewLifecycleOwner) { photoList ->
-            val halfSize = photoList.size / 2
-            val firstHalf = photoList.subList(0, halfSize)
-            val secondHalf = photoList.subList(halfSize, photoList.size)
+        val layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
 
-            photoAdapter1.rangeInsert(photoAdapter1.itemCount+1, firstHalf.size, firstHalf)
-            photoAdapter2.rangeInsert(photoAdapter2.itemCount+1, secondHalf.size, secondHalf)
-        }
-
-        val layoutManager1 = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        val layoutManager2 = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-
-        binding.rvLatest.layoutManager = layoutManager1
+        binding.rvLatest.layoutManager = layoutManager
         binding.rvLatest.addItemDecoration(VerticalSpaceItemDecoration())
-        photoAdapter1 = HouseRvAdapter()
-        binding.rvLatest.adapter = photoAdapter1
-
-        binding.rvLatest2.layoutManager = layoutManager2
-        binding.rvLatest2.addItemDecoration(VerticalSpaceItemDecoration())
-        photoAdapter2 = HouseRvAdapter()
-        binding.rvLatest2.adapter = photoAdapter2
+        photoAdapter = HouseRvAdapter()
+        binding.rvLatest.adapter = photoAdapter
 
         binding.rvLatest.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             private var loading = true
@@ -71,34 +58,37 @@ class HouseFragment : BaseFragment<FragmentHouseBinding>(R.layout.fragment_house
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                binding.rvLatest2.scrollBy(dx/3, dy/3)
 
-                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+                val lm = recyclerView.layoutManager as? StaggeredGridLayoutManager ?: return
 
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
+                if(dy > 0){
+                    val visibleItemCount = lm.childCount
+                    val totalItemCount = lm.itemCount
+                    val firstVisibleItem = lm.findFirstVisibleItemPositions(IntArray(2))[0]
 
-                if (loading && totalItemCount > previousTotal) {
-                    loading = false
-                    previousTotal = totalItemCount
-                }
+                    if (loading && totalItemCount > previousTotal) {
+                        loading = false
+                        previousTotal = totalItemCount
+                    }
 
-                val visibleThreshold = 10
+                    val visibleThreshold = 10
 
-                if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                    viewModel.getPhotos()
-                    loading = true
+                    if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                        viewModel.getPhotos()
+
+                        loading = true
+                    }
                 }
             }
         })
 
-        binding.rvLatest2.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                binding.rvLatest.scrollBy(dx/3, dy/3)
+        viewModel.photoItems.observe(viewLifecycleOwner) { photoList ->
+            rvState = binding.rvLatest.layoutManager?.onSaveInstanceState()!!
+            photoAdapter.changeList(photoList)
+            if(rvState != null){
+                binding.rvLatest.layoutManager?.onRestoreInstanceState(rvState)
             }
-        })
+        }
     }
 
     inner class HorizontalSpaceItemDecoration() :
