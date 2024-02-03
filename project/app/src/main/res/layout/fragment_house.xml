@@ -38,7 +38,7 @@
                 />
 
             <TextView
-                android:id="@+id/tv_latest"
+                android:id="@+id/tv_recent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/latest_images"
@@ -49,12 +49,12 @@
                 android:layout_marginTop="12dp" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_latest"
+                android:id="@+id/rv_recent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_latest"
+                app:layout_constraintTop_toBottomOf="@id/tv_recent"
                 android:layout_marginHorizontal="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="58dp"/>

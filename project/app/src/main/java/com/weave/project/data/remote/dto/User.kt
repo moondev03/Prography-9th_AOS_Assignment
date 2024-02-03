@@ -2,6 +2,7 @@ package com.weave.project.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
+
 data class User(
     @SerializedName("id")
     val id: String,
@@ -28,5 +29,27 @@ data class User(
     @SerializedName("profile_image")
     val profile_image: Profile_image,
     @SerializedName("links")
-    val links: Links
+    val links: UserLinks
+)
+
+data class UserLinks(
+    @SerializedName("self")
+    val self: String,
+    @SerializedName("html")
+    val html: String,
+    @SerializedName("photos")
+    val photos: String,
+    @SerializedName("likes")
+    val likes: String,
+    @SerializedName("portfolio")
+    val portfolio: String
+)
+
+data class Profile_image(
+    @SerializedName("small")
+    val small: String,
+    @SerializedName("medium")
+    val medium: String,
+    @SerializedName("large")
+    val large: String
 )

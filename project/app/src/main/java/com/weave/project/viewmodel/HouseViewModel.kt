@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 class HouseViewModel : ViewModel() {
     private val repository = UnSplashRepositoryImpl()
 
-    val bookMarkItems = MutableLiveData<List<PhotoEntity>>()
     private var _photoItems = MutableLiveData<MutableList<PhotoEntity>>(mutableListOf())
     val photoItems: LiveData<MutableList<PhotoEntity>>
         get() = _photoItems
@@ -21,15 +20,6 @@ class HouseViewModel : ViewModel() {
 
     private var page = 1
 
-    fun init() {
-        getBookMarkPhotos()
-        getPhotos()
-    }
-
-    fun getBookMarkPhotos() {
-        val dummyBookMarkList = listOf<PhotoEntity>()
-        bookMarkItems.value = dummyBookMarkList
-    }
 
     fun getPhotos() {
         viewModelScope.launch(Dispatchers.IO) {

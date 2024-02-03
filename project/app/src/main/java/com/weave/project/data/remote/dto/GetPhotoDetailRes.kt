@@ -34,4 +34,18 @@ data class GetPhotoDetailRes(
     val location: Location,
     @SerializedName("tags")
     val tags: List<Tags>,
+    @SerializedName("urls")
+    val urls: Urls,
+    @SerializedName("links")
+    val links: Links,
+    @SerializedName("user")
+    val user: User,
+    @SerializedName("current_user_collections")
+    val current_user_collections: List<Current_user_collections>
 )
+
+data class Tags(
+    @SerializedName("title")
+    val title: String
+)
+

@@ -44,7 +44,7 @@ class HouseRvAdapter: RecyclerView.Adapter<HouseRvAdapter.RecyclerViewViewHolder
             binding.ivItem.foreground = AppCompatResources.getDrawable(itemView.context, R.drawable.gradient)
 
             Glide.with(binding.ivItem)
-                .load(item.urls?.small)
+                .load(item.urls.regular)
                 .placeholder(R.drawable.loading_photo_item)
                 .transform(CenterInside(), RoundedCorners(40))
                 .into(binding.ivItem)

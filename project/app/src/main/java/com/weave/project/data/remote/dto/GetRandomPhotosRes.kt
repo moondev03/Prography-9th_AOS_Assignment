@@ -6,14 +6,10 @@ data class GetRandomPhotosRes(
 
     @SerializedName("id")
     val id: String,
-    @SerializedName("slug")
-    val slug: String,
     @SerializedName("created_at")
     val created_at: String,
     @SerializedName("updated_at")
     val updated_at: String,
-    @SerializedName("promoted_at")
-    val promoted_at: String,
     @SerializedName("width")
     val width: Int,
     @SerializedName("height")
@@ -22,12 +18,25 @@ data class GetRandomPhotosRes(
     val color: String,
     @SerializedName("blur_hash")
     val blur_hash: String,
+    @SerializedName("downloads")
+    val downloads: Int,
+    @SerializedName("likes")
+    val likes: Int,
+    @SerializedName("liked_by_user")
+    val liked_by_user: Boolean,
     @SerializedName("description")
     val description: String,
-    @SerializedName("alt_description")
-    val alt_description: String,
-    @SerializedName("breadcrumbs")
-    val breadcrumbs: List<String>,
+    @SerializedName("exif")
+    val exif: Exif,
+    @SerializedName("location")
+    val location: Location,
+    @SerializedName("current_user_collections")
+    val current_user_collections: List<Current_user_collections>,
     @SerializedName("urls")
     val urls: Urls,
+    @SerializedName("links")
+    val links: Links,
+    @SerializedName("user")
+    val user: User
 )
+

@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.weave.project.model.BookMarkEntity
 
-@Database(entities = [BookMarkEntity::class], version = 1)
+@Database(entities = [BookMarkEntity::class], version = 2)
 abstract class BookMarkDatabase : RoomDatabase(){
     abstract fun bookMarkDao(): BookMarkDAO
 

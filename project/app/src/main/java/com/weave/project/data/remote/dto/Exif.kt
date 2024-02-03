@@ -2,6 +2,7 @@ package com.weave.project.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
+
 data class Exif(
     @SerializedName("make")
     val make: String,

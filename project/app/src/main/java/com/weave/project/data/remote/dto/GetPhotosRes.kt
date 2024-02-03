@@ -33,3 +33,7 @@ data class GetPhotosRes(
     @SerializedName("links")
     val links: Links
 )
+
+
+
+
